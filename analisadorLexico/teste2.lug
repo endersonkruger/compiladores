@@ -1,0 +1,18 @@
+main {
+  var int a;
+  var int resultado;
+
+  a := 1;
+  do {
+    a := (a * 2);
+  } while ((a < 16));
+
+  resultado := calculaDobro(a);
+  print(resultado);
+}
+
+function int calculaDobro(int valor) {
+  var int temp;
+  temp := (valor * 2);
+  return temp;
+}

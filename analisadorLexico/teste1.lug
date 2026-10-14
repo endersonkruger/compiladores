@@ -1,0 +1,25 @@
+main {
+  var int contador;
+  var bool ativo;
+  var int valor_final;
+
+  contador := 0;
+  ativo := true;
+  valor_final := 2.5E+3;
+
+  while ((contador < 10)) do {
+    if (((contador == 5) || (ativo == false))) {
+      print(contador);
+    };
+    contador := (contador + 1);
+  };
+
+  valor_final := soma(contador, 3.75);
+  print(valor_final);
+}
+
+function int soma(int x, int y) {
+  var int r;
+  r := (x + y);
+  return r;
+}

@@ -1,0 +1,184 @@
+PARSER_BEGIN(Lugosi)
+import java.io.*;
+public class Lugosi {
+
+  public static void main(String args[]) throws IOException {
+    Lugosi analisadorSintatico = new Lugosi(new FileInputStream(args[0]));
+    try {
+      analisadorSintatico.Lugosi();
+      System.out.println("Analise sintatica concluida: programa correto.");
+    } catch (ParseException e) {
+      System.out.println("Erro sintatico: " + e.getMessage());
+      System.exit(1);
+    } catch (TokenMgrError e) {
+      System.out.println("Erro lexico: " + e.getMessage());
+      System.exit(1);
+    }
+  }
+
+}
+
+PARSER_END(Lugosi)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+}
+
+TOKEN :
+{
+  <MAIN: "main">
+| <ACHAVES: "{">
+| <FCHAVES: "}">
+| <VAR: "var">
+| <INT: "int">
+| <BOOL: "bool">
+| <IF: "if">
+| <WHILE: "while">
+| <DO: "do">
+| <RETURN: "return">
+| <PRINT: "print">
+| <TRUE: "true">
+| <FALSE: "false">
+| <FUNCTION: "function">
+}
+
+TOKEN :
+{
+  <APARENTESES: "(">
+| <FPARENTESES: ")">
+| <PONTOVIRGULA: ";">
+| <VIRGULA: ",">
+| <ATRIBUICAO: ":=">
+| <SOMA: "+">
+| <SUB: "-">
+| <MULT: "*">
+| <DIV: "/">
+| <AND: "&&">
+| <OR: "||">
+| <MENOR: "<">
+| <MAIOR: ">">
+| <IGUAL: "==">
+}
+
+TOKEN :
+{
+  < NUM: <DIGITOS> ( "." <DIGITOS> )? ( "E" ( "+" | "-" )? <DIGITOS> )? >
+| < ID: <LETRA> ( <LETRA> | <DIGITO> )* ( "_" ( <LETRA> | <DIGITO> )+ )* >
+| < #LETRA: ["a"-"z","A"-"Z"] >
+| < #DIGITO: ["0"-"9"] >
+| < #DIGITOS: ( <DIGITO> )+ >
+
+}
+
+// LUGOSI -> MAIN FUNC?
+// Como FUNC e recursiva a esquerda (uma ou mais funcoes), FUNC? equivale a zero ou mais funcoes.
+void Lugosi () :
+{}
+{
+  Main() ( Func() )* <EOF>
+}
+
+// MAIN -> "main" "{" VARDECL SEQCOMANDOS "}"
+void Main () :
+{}
+{
+  <MAIN> <ACHAVES> VarDecl() SeqComandos() <FCHAVES>
+}
+
+// VARDECL -> VARDECL "var" TIPO TOKEN_id ";" | vazio
+// Recursao a esquerda eliminada: VARDECL -> ( "var" TIPO TOKEN_id ";" )*
+void VarDecl () :
+{}
+{
+  ( <VAR> Tipo() <ID> <PONTOVIRGULA> )*
+}
+
+// TIPO -> "int" | "bool"
+void Tipo () :
+{}
+{
+  <INT> | <BOOL>
+}
+
+// SEQCOMANDOS -> SEQCOMANDOS COMANDO | vazio
+// Recursao a esquerda eliminada: SEQCOMANDOS -> ( COMANDO )*
+void SeqComandos () :
+{}
+{
+  ( Comando() )*
+}
+
+// As duas alternativas que iniciam com TOKEN_id foram fatoradas em ComandoId.
+void Comando () :
+{}
+{
+  <ID> ComandoId()
+| <IF> <APARENTESES> Exp() <FPARENTESES> <ACHAVES> SeqComandos() <FCHAVES> <PONTOVIRGULA>
+| <WHILE> <APARENTESES> Exp() <FPARENTESES> <DO> <ACHAVES> SeqComandos() <FCHAVES> <PONTOVIRGULA>
+| <DO> <ACHAVES> SeqComandos() <FCHAVES> <WHILE> <APARENTESES> Exp() <FPARENTESES> <PONTOVIRGULA>
+| <RETURN> Exp() <PONTOVIRGULA>
+| <PRINT> <APARENTESES> Exp() <FPARENTESES> <PONTOVIRGULA>
+}
+
+// Restante de um comando iniciado por TOKEN_id: atribuicao ou chamada de funcao.
+void ComandoId () :
+{}
+{
+  <ATRIBUICAO> Exp() <PONTOVIRGULA>
+| <APARENTESES> ( ListaExp() )? <FPARENTESES> <PONTOVIRGULA>
+}
+
+// EXP -> "(" EXP OP EXP ")" | FATOR
+void Exp () :
+{}
+{
+  <APARENTESES> Exp() Op() Exp() <FPARENTESES>
+| Fator()
+}
+
+// FATOR -> TOKEN_id | TOKEN_id "(" LISTAEXP? ")" | TOKEN_numliteral | "true" | "false"
+// Fatorado: FATOR -> TOKEN_id ( "(" LISTAEXP? ")" )? | ...
+void Fator () :
+{}
+{
+  <ID> ( <APARENTESES> ( ListaExp() )? <FPARENTESES> )?
+| <NUM>
+| <TRUE>
+| <FALSE>
+}
+
+// OP -> "+" | "-" | "*" | "/" | "&&" | "||" | "<" | ">" | "=="
+void Op () :
+{}
+{
+  <SOMA> | <SUB> | <MULT> | <DIV> | <AND> | <OR> | <MENOR> | <MAIOR> | <IGUAL>
+}
+
+// LISTAEXP -> EXP | LISTAEXP "," EXP
+// Recursao a esquerda eliminada: LISTAEXP -> EXP ( "," EXP )*
+void ListaExp () :
+{}
+{
+  Exp() ( <VIRGULA> Exp() )*
+}
+
+// FUNC -> FUNC "function" ... | "function" ...
+// Recursao a esquerda eliminada: a repeticao fica em Lugosi() com ( Func() )*
+void Func () :
+{}
+{
+  <FUNCTION> Tipo() <ID> <APARENTESES> ( ListaArg() )? <FPARENTESES>
+  <ACHAVES> VarDecl() SeqComandos() <FCHAVES>
+}
+
+// LISTAARG -> TIPO TOKEN_id | LISTAARG "," TIPO TOKEN_id
+// Recursao a esquerda eliminada: LISTAARG -> TIPO TOKEN_id ( "," TIPO TOKEN_id )*
+void ListaArg () :
+{}
+{
+  Tipo() <ID> ( <VIRGULA> Tipo() <ID> )*
+}
