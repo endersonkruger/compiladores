@@ -6,7 +6,7 @@ public class Lugosi {
     Lugosi analisadorSintatico = new Lugosi(new FileInputStream(args[0]));
     try {
       analisadorSintatico.Lugosi();
-      System.out.println("Analise sintatica concluida: programa correto.");
+      System.out.println("Concluído sem erros.");
     } catch (ParseException e) {
       System.out.println("Erro sintatico: " + e.getMessage());
       System.exit(1);
@@ -118,6 +118,7 @@ void Comando () :
 {
   <ID> ComandoId()
 | <IF> <APARENTESES> Exp() <FPARENTESES> <ACHAVES> SeqComandos() <FCHAVES> <PONTOVIRGULA>
+// | <IF> Exp() <ACHAVES> SeqComandos() <FCHAVES> <PONTOVIRGULA>
 | <WHILE> <APARENTESES> Exp() <FPARENTESES> <DO> <ACHAVES> SeqComandos() <FCHAVES> <PONTOVIRGULA>
 | <DO> <ACHAVES> SeqComandos() <FCHAVES> <WHILE> <APARENTESES> Exp() <FPARENTESES> <PONTOVIRGULA>
 | <RETURN> Exp() <PONTOVIRGULA>
@@ -137,6 +138,7 @@ void Exp () :
 {}
 {
   <APARENTESES> Exp() Op() Exp() <FPARENTESES>
+  // Exp() Op() Exp()
 | Fator()
 }
 
