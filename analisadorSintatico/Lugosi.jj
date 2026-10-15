@@ -75,7 +75,7 @@ TOKEN :
 }
 
 // LUGOSI -> MAIN FUNC?
-// Como FUNC e recursiva a esquerda (uma ou mais funcoes), FUNC? equivale a zero ou mais funcoes.
+// Eliminada a recursão a esquerda
 void Lugosi () :
 {}
 {
@@ -90,7 +90,8 @@ void Main () :
 }
 
 // VARDECL -> VARDECL "var" TIPO TOKEN_id ";" | vazio
-// Recursao a esquerda eliminada: VARDECL -> ( "var" TIPO TOKEN_id ";" )*
+// VARDECL -> ( "var" TIPO TOKEN_id ";" )*
+// Eliminada a recursão a esquerda
 void VarDecl () :
 {}
 {
@@ -105,14 +106,14 @@ void Tipo () :
 }
 
 // SEQCOMANDOS -> SEQCOMANDOS COMANDO | vazio
-// Recursao a esquerda eliminada: SEQCOMANDOS -> ( COMANDO )*
+// SEQCOMANDOS -> ( COMANDO )*
+// Eliminada a recursão a esquerda
 void SeqComandos () :
 {}
 {
   ( Comando() )*
 }
 
-// As duas alternativas que iniciam com TOKEN_id foram fatoradas em ComandoId.
 void Comando () :
 {}
 {
@@ -125,7 +126,6 @@ void Comando () :
 | <PRINT> <APARENTESES> Exp() <FPARENTESES> <PONTOVIRGULA>
 }
 
-// Restante de um comando iniciado por TOKEN_id: atribuicao ou chamada de funcao.
 void ComandoId () :
 {}
 {
@@ -138,12 +138,12 @@ void Exp () :
 {}
 {
   <APARENTESES> Exp() Op() Exp() <FPARENTESES>
-  // Exp() Op() Exp()
+// | Fator() (Op() Exp())*
 | Fator()
 }
 
 // FATOR -> TOKEN_id | TOKEN_id "(" LISTAEXP? ")" | TOKEN_numliteral | "true" | "false"
-// Fatorado: FATOR -> TOKEN_id ( "(" LISTAEXP? ")" )? | ...
+// FATOR -> TOKEN_id ( "(" LISTAEXP? ")" )? | ...
 void Fator () :
 {}
 {
@@ -161,7 +161,8 @@ void Op () :
 }
 
 // LISTAEXP -> EXP | LISTAEXP "," EXP
-// Recursao a esquerda eliminada: LISTAEXP -> EXP ( "," EXP )*
+// LISTAEXP -> EXP ( "," EXP )*
+// Eliminada a recursão a esquerda
 void ListaExp () :
 {}
 {
@@ -169,7 +170,8 @@ void ListaExp () :
 }
 
 // FUNC -> FUNC "function" ... | "function" ...
-// Recursao a esquerda eliminada: a repeticao fica em Lugosi() com ( Func() )*
+// Lugosi() com ( Func() )*
+// Eliminada a recursão a esquerda
 void Func () :
 {}
 {
@@ -178,7 +180,8 @@ void Func () :
 }
 
 // LISTAARG -> TIPO TOKEN_id | LISTAARG "," TIPO TOKEN_id
-// Recursao a esquerda eliminada: LISTAARG -> TIPO TOKEN_id ( "," TIPO TOKEN_id )*
+// LISTAARG -> TIPO TOKEN_id ( "," TIPO TOKEN_id )*
+// Eliminada a recursão a esquerda
 void ListaArg () :
 {}
 {

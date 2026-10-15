@@ -1,3 +1,3 @@
 javacc *.jj
-javac -d Lugosi/ *.java
+javac *.java
 rm *.java

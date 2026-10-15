@@ -1,0 +1,7 @@
+main {
+    x := 4;
+    y := x + 4;
+    print(x);
+    print(y);
+    print(( 92 ));
+}

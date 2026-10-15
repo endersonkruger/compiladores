@@ -5,11 +5,11 @@ main {
     x := 10;
     y := 20;
 
-    if (( x < y )) {
+    if  (( x<y ))  {
         print(x);
     };
 
-    while (( x < 15 )) do {
+    while ( ( x < 15 ) ) do {
         x := ( x + 1 );
     };
 
@@ -19,4 +19,5 @@ main {
 function int soma(int x, int y) {
     var int z;
     z := ( x + y );
+    return z;
 }
